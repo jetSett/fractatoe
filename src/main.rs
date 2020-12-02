@@ -7,8 +7,8 @@ use argh::FromArgs;
 #[derive(FromArgs)]
 /// Greet
 struct Args {
-    #[argh(positional, description = "scaling of the fractal")]
-    scaling: f64,
+    #[argh(option, description = "scaling of the fractal")]
+    scaling: Option<f64>,
 }
 
 mod fractal;
@@ -20,7 +20,7 @@ fn main() -> Result<(), pixels::Error> {
     let args: Args = argh::from_env();
 
     info!("Computing the image");
-    let image = fractal::mandelbrot::create_image(600, 800, args.scaling, 50., 100);
+    let image = fractal::mandelbrot::create_image(600, 800, args.scaling.unwrap_or(0.01), 50., 100);
 
     info!("Starting main loop");
 
