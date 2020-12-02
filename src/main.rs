@@ -1,28 +1,71 @@
 #![forbid(unsafe_code)]
-
-use log::info;
-use winit::dpi::PhysicalSize;
+#![feature(trait_alias)]
+#![feature(box_syntax)]
 
 use argh::FromArgs;
+use log::info;
+use rand::{rngs::StdRng, SeedableRng};
+use winit::dpi::PhysicalSize;
 #[derive(FromArgs)]
 /// Greet
 struct Args {
-    #[argh(option, description = "scaling of the fractal")]
-    scaling: Option<f64>,
+    #[argh(positional, description = "width of the fractal")]
+    width: usize,
+    #[argh(positional, description = "height of the fractal")]
+    height: usize,
+    #[argh(positional, description = "number of iterations for the flame point")]
+    number_iteration: usize,
+    #[argh(positional, description = "resolution of the flame supersampling")]
+    resolution: usize,
+    #[argh(option, description = "resolution of the flame supersampling")]
+    seed: Option<u64>,
+    #[argh(switch, description = "resolution of the flame supersampling")]
+    display: bool,
 }
 
 mod fractal;
 mod window;
 
-fn main() -> Result<(), pixels::Error> {
-    env_logger::init();
+fn bisin(x: f64, y: f64) -> (f64, f64) {
+    (y.sin(), x.sin())
+}
+
+fn bicos(x: f64, y: f64) -> (f64, f64) {
+    (y.cos(), x.cos())
+}
+
+fn main() {
+    use fractal::flame::FlameDistribution;
+
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
 
     let args: Args = argh::from_env();
 
-    info!("Computing the image");
-    let image = fractal::mandelbrot::create_image(600, 800, args.scaling.unwrap_or(0.01), 50., 100);
+    info!("Initializing the flame algorithm");
+
+    let distribution = FlameDistribution::new(&[1, 1]).unwrap();
+
+    let (width, height) = (args.width, args.height);
+
+    let mut flame_algo = fractal::flame::FlameAlgorithm::new(
+        width,
+        height,
+        vec![box bisin, box bicos],
+        distribution,
+        vec![0.5, 0.5],
+        vec![(1., 0.2, 0., 0.2, 1., 0.), (1., 1., 0.2, 2.3, 0.3, 0.)],
+        args.resolution,
+    );
+
+    info!("Computing the histogram");
+    let rng = StdRng::seed_from_u64(args.seed.unwrap_or(4242));
+    flame_algo.compute_histogram(args.number_iteration, rng);
+
+    info!("Generating the image");
+    let image = flame_algo.render_image(1.);
 
     info!("Starting main loop");
-
-    window::show_image(PhysicalSize::new(600, 800), image)
+    if args.display {
+        window::show_image(PhysicalSize::new(width as f32, height as f32), image).unwrap();
+    }
 }

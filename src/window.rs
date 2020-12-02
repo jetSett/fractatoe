@@ -23,7 +23,7 @@ impl Into<[u8; 4]> for Pix {
 pub struct Image {
     width: usize,
     _height: usize,
-    pixels: Vec<Pix>,
+    pub pixels: Vec<Pix>,
 }
 
 impl Image {
