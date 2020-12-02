@@ -29,6 +29,96 @@ type FlamePoint = ((f64, f64), Color);
 
 pub type FlameFunction = Box<dyn Fn(f64, f64) -> (f64, f64)>;
 
+pub struct FlameBuilder {
+    variation_functions: Option<Vec<FlameFunction>>,
+    flame_distribution: Option<FlameDistribution>,
+    weight_variation: Option<Vec<f64>>,
+    coefs_inside: Option<Vec<CoefFlame>>,
+    width: Option<usize>,
+    height: Option<usize>,
+    resolution: Option<usize>,
+}
+
+impl FlameBuilder {
+    pub fn new() -> Self {
+        FlameBuilder {
+            variation_functions: None,
+            flame_distribution: None,
+            weight_variation: None,
+            coefs_inside: None,
+            width: None,
+            height: None,
+            resolution: None,
+        }
+    }
+
+    pub fn with_size(mut self, width: usize, height: usize) -> Self {
+        self.width = Some(width);
+        self.height = Some(height);
+        self
+    }
+
+    pub fn with_resolution(mut self, resolution: usize) -> Self {
+        self.resolution = Some(resolution);
+        self
+    }
+
+    pub fn with_variation_functions(mut self, variation_functions: Vec<FlameFunction>) -> Self {
+        self.variation_functions = Some(variation_functions);
+        self
+    }
+
+    pub fn with_flame_distribution(mut self, flame_distribution: FlameDistribution) -> Self {
+        self.flame_distribution = Some(flame_distribution);
+        self
+    }
+
+    pub fn with_weight_variation(mut self, weight_variation: Vec<f64>) -> Self {
+        self.weight_variation = Some(weight_variation);
+        self
+    }
+
+    pub fn with_coefs_inside(mut self, coefs_inside: Vec<CoefFlame>) -> Self {
+        self.coefs_inside = Some(coefs_inside);
+        self
+    }
+
+    pub fn build(self) -> Result<FlameAlgorithm, &'static str> {
+        let width = self.width.ok_or("No width precised")?;
+        let height = self.height.ok_or("No height precised")?;
+
+        let resolution = self.resolution.unwrap_or(1);
+
+        let variation_functions = self
+            .variation_functions
+            .ok_or("No variation_functions precised")?;
+        let flame_distribution = self
+            .flame_distribution
+            .ok_or("No flame_distribution precised")?;
+        let weight_variation = self
+            .weight_variation
+            .ok_or("No weight_variation precised")?;
+        let coefs_inside = self.coefs_inside.ok_or("No coefs_inside precised")?;
+
+        let mut histogram = vec![];
+        histogram.resize(
+            width * height * resolution * resolution,
+            (0, (0x00, 0x00, 0x00)),
+        );
+
+        Ok(FlameAlgorithm {
+            width,
+            height,
+            variation_functions,
+            flame_distribution,
+            weight_variation,
+            coefs_inside,
+            histogram,
+            resolution,
+        })
+    }
+}
+
 pub struct FlameAlgorithm {
     pub variation_functions: Vec<FlameFunction>,
     pub flame_distribution: FlameDistribution,
@@ -43,32 +133,6 @@ pub struct FlameAlgorithm {
 }
 
 impl FlameAlgorithm {
-    pub fn new(
-        width: usize,
-        height: usize,
-        variation_functions: Vec<FlameFunction>,
-        flame_distribution: FlameDistribution,
-        weight_variation: Vec<f64>,
-        coefs_inside: Vec<CoefFlame>,
-        resolution: usize,
-    ) -> Self {
-        let mut histogram = vec![];
-        histogram.resize(
-            width * height * resolution * resolution,
-            (0, (0x00, 0x00, 0x00)),
-        );
-        FlameAlgorithm {
-            width,
-            height,
-            variation_functions,
-            flame_distribution,
-            weight_variation,
-            coefs_inside,
-            histogram,
-            resolution,
-        }
-    }
-
     fn one_turn<RAND: Rng>(&self, point: FlamePoint, rng: &mut RAND) -> FlamePoint {
         let (mut x_current, mut y_current) = (0., 0.);
         let (x, y) = point.0;

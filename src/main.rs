@@ -34,7 +34,8 @@ fn bicos(x: f64, y: f64) -> (f64, f64) {
     (y.cos(), x.cos())
 }
 
-fn main() {
+fn main() -> Result<(), &'static str> {
+    use fractals::flame::FlameBuilder;
     use fractals::flame::FlameDistribution;
 
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
@@ -47,15 +48,17 @@ fn main() {
 
     let (width, height) = (args.width, args.height);
 
-    let mut flame_algo = fractals::flame::FlameAlgorithm::new(
-        width,
-        height,
-        vec![box bisin, box bicos],
-        distribution,
-        vec![0.5, 0.5],
-        vec![(1., 0.2, 0., 0.2, 1., 0.), (1., 1., 0.2, 2.3, 0.3, 0.)],
-        args.resolution,
-    );
+    let mut flame_algo = FlameBuilder::new()
+        .with_size(width, height)
+        .with_resolution(args.resolution)
+        .with_variation_functions(vec![box bisin, box bicos])
+        .with_flame_distribution(distribution)
+        .with_weight_variation(vec![0.5, 0.5])
+        .with_coefs_inside(vec![
+            (1., 0.2, 0., 0.2, 1., 0.),
+            (1., 1., 0.2, 2.3, 0.3, 0.),
+        ])
+        .build()?;
 
     info!("Computing the histogram");
     let rng = StdRng::seed_from_u64(args.seed.unwrap_or(4242));
@@ -68,4 +71,5 @@ fn main() {
     if args.display {
         window::show_image(PhysicalSize::new(width as f32, height as f32), image).unwrap();
     }
+    Ok(())
 }
