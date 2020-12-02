@@ -23,7 +23,7 @@ struct Args {
     display: bool,
 }
 
-mod fractal;
+mod fractals;
 mod window;
 
 fn bisin(x: f64, y: f64) -> (f64, f64) {
@@ -35,7 +35,7 @@ fn bicos(x: f64, y: f64) -> (f64, f64) {
 }
 
 fn main() {
-    use fractal::flame::FlameDistribution;
+    use fractals::flame::FlameDistribution;
 
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
 
@@ -47,7 +47,7 @@ fn main() {
 
     let (width, height) = (args.width, args.height);
 
-    let mut flame_algo = fractal::flame::FlameAlgorithm::new(
+    let mut flame_algo = fractals::flame::FlameAlgorithm::new(
         width,
         height,
         vec![box bisin, box bicos],
