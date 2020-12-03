@@ -3,16 +3,16 @@
         "Flame": {
             "width": 800,
             "height": 800,
-            "variation_functions": ["Spherical", "Spherical"],
-            "flame_distribution": [1, 1],
+            "variation_functions": ["Spherical", "Bisin"],
             "weight_variation": [0.5, 0.5],
+            "flame_distribution": [2, 1],
             "coefs_inside": [
-                [1.0, 0.1, 0.2, 0.1, 1.0, 0.2],
-                [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+                [0.9, 0.1, 0.0, 0.1, 0.9, 0.0],
+                [0.5, 0.5, 0.0, 0.5, 0.5, 0.0]
             ],
-            "resolution": 3,
-            "number_points": 300,
-            "number_iterations": 30,
+            "resolution": 2,
+            "number_points": 1000000,
+            "number_iterations": 20,
             "seed": [
                 42,
                 42,
@@ -51,8 +51,8 @@
     },
     "rendering_conf": {
         "FlameRendering": {
-            "frequency_agreg_type": "Linear",
-            "gamma": 1.5
+            "frequency_agreg_type": "Logarithmic",
+            "gamma": 1.3
         }
     }
 }

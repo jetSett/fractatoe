@@ -152,9 +152,21 @@ impl FlameAlgorithm {
         let (x, y) = float_point_to_int_point(point.0, self.width, self.height, self.resolution);
         let (mut freq, (mut r, mut g, mut b)) = histogram.get_cell(x, y);
         freq += 1.;
-        r = (r + (point.1).0) / 2.;
-        g = (g + (point.1).1) / 2.;
-        b = (b + (point.1).2) / 2.;
+        if r == 0. {
+            r = (point.1).0;
+        } else {
+            r = (r + (point.1).0) / 2.;
+        }
+        if g == 0. {
+            g = (point.1).0;
+        } else {
+            g = (g + (point.1).0) / 2.;
+        }
+        if b == 0. {
+            b = (point.1).0;
+        } else {
+            b = (b + (point.1).0) / 2.;
+        }
         histogram.set_cell(x, y, (freq, (r, g, b)));
     }
 }
