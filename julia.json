@@ -1,0 +1,22 @@
+{
+    "fractal_conf": {
+        "Julia": {
+            "width": 800,
+            "height": 800,
+            "c": [0.33, 0.5],
+            "scaling": 0.002,
+            "resolution": 1,
+            "bound": 500.0,
+            "iterations": 1000
+        }
+    },
+    "rendering_conf": {
+        "MandelbrotRendering": {
+            "r": 100,
+            "g": 100,
+            "b": 255,
+            "gamma": 0.5,
+            "frequency_agreg_type": "Linear"
+        }
+    }
+}

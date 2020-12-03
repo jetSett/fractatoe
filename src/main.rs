@@ -4,96 +4,72 @@
 
 /*
     TODO :
-    - Get params for a config file (toml) -> serdes
     - Allow to save histograms in order to make multiple rendering -> serdes
 */
+use std::fs;
+
+use crate::fractals::HistogramGeneration;
 use argh::FromArgs;
-use log::info;
-use rand::{rngs::StdRng, SeedableRng};
+use serde_derive::{Deserialize, Serialize};
 use winit::dpi::PhysicalSize;
-#[derive(FromArgs)]
-/// Greet
-struct Args {
-    #[argh(positional, description = "width of the fractal")]
-    width: usize,
-    #[argh(positional, description = "height of the fractal")]
-    height: usize,
-    #[argh(positional, description = "number of points lauched for flame")]
-    number_points: usize,
-    #[argh(positional, description = "number of iterations for the flame point")]
-    number_iterations: usize,
-    #[argh(positional, description = "resolution of the flame supersampling")]
-    resolution: usize,
-    #[argh(option, description = "gamma reduction")]
-    gamma: Option<f64>,
-    #[argh(option, description = "resolution of the flame supersampling")]
-    seed: Option<u64>,
-    #[argh(switch, description = "resolution of the flame supersampling")]
-    display: bool,
-}
+
+use fractals::*;
+use rendering::RenderingConf;
 
 mod fractals;
 mod window;
 
-use fractals::{HistogramGeneration, HistogramRendering};
+use window::Image;
+
+#[derive(FromArgs)]
+/// Greet
+struct Args {
+    #[argh(positional)]
+    config_filename: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct AppConf {
+    fractal_conf: FractalConf,
+    rendering_conf: rendering::RenderingConf,
+}
+
+fn get_histogram_from_fractal_conf(fractal_conf: fractals::FractalConf) -> Histogram {
+    match fractal_conf {
+        FractalConf::Mandelbrot(conf) => conf.build().build_histogram(),
+        FractalConf::Julia(conf) => conf.build().build_histogram(),
+        FractalConf::RenderingOnly(histo_filename) => {
+            let histo_data =
+                fs::read_to_string(histo_filename).expect("Could not read histogram file");
+            serde_json::from_str(histo_data.as_str()).expect("Error in the histogram data")
+        }
+    }
+}
+
+fn render_image(rendering_conf: rendering::RenderingConf, histogram: Histogram) -> Image {
+    match rendering_conf {
+        RenderingConf::MandelbrotRendering(conf) => conf.build().render_image(histogram),
+    }
+}
 
 fn main() -> Result<(), &'static str> {
-    use fractals::flame::FlameBuilder;
-    use fractals::flame::FlameDistribution;
-    use fractals::flame::VariationFunction;
-
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
+    env_logger::Builder::from_env(env_logger::Env::default()).init();
 
     let args: Args = argh::from_env();
+    let json_config = fs::read_to_string(args.config_filename).expect("Could not read config file");
 
-    info!("Initializing the flame algorithm");
+    let app_config: AppConf =
+        serde_json::from_str(json_config.as_str()).expect("Error in the config file");
 
-    // let distribution = FlameDistribution::new(&[1, 1, 1]).unwrap();
+    let histogram = get_histogram_from_fractal_conf(app_config.fractal_conf);
 
-    let (width, height) = (args.width, args.height);
+    let image = render_image(app_config.rendering_conf, histogram);
 
-    // let mut flame_algo = FlameBuilder::new()
-    //     .with_size(width, height)
-    //     .with_resolution(args.resolution)
-    //     .with_variation_functions(vec![VariationFunction::Bisin, VariationFunction::Spherical])
-    //     .with_flame_distribution(distribution)
-    //     .with_weight_variation(vec![0.5, 0.5])
-    //     .with_coefs_inside(vec![
-    //         (0.9, 0.1, 0., 0.1, 0.9, 0.2),
-    //         (0.9, 0.1, 0.5, 0.1, 0.9, 0.5),
-    //         (1., 1., -0.3, 1., 1., 0.3),
-    //     ])
-    //     .build()?;
+    window::show_image(
+        PhysicalSize::new(image.width as f32, image.height as f32),
+        image,
+    )
+    .unwrap();
 
-    // info!("Computing the histogram");
-    // let rng = StdRng::seed_from_u64(args.seed.unwrap_or(4242));
-    // flame_algo.compute_histogram(args.number_points, args.number_iterations, rng);
-
-    info!("Generating the image");
-    // let image = flame_algo.render_image(args.gamma.unwrap_or(1.));
-
-    let mandelbroot_algo = fractals::mandelbrot::Mandelbrot {
-        width: width,
-        height: height,
-        scaling: 0.01,
-        resolution: 1,
-        bound: 50.,
-        iterations: 1000,
-    };
-
-    let histogram = mandelbroot_algo.build_histogram();
-
-    let image = fractals::rendering::MandelbrotRenderer {
-        r: 255,
-        g: 200,
-        b: 10,
-        gamma: 0.5,
-    }
-    .render_image(histogram);
-
-    info!("Starting main loop");
-    if args.display {
-        window::show_image(PhysicalSize::new(width as f32, height as f32), image).unwrap();
-    }
     Ok(())
 }

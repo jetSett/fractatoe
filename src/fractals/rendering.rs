@@ -1,16 +1,41 @@
+use serde_derive::{Deserialize, Serialize};
+
 use super::{FrequencyAggregationType, Histogram, HistogramRendering};
 use crate::window::{Image, Pix};
 
-pub struct MandelbrotRenderer {
+#[derive(Serialize, Deserialize)]
+pub struct MandelbrotRendererConf {
     pub r: usize,
     pub g: usize,
     pub b: usize,
     pub gamma: f64,
+
+    pub frequency_agreg_type: FrequencyAggregationType,
+}
+
+impl MandelbrotRendererConf {
+    pub fn build(self) -> MandelbrotRenderer {
+        MandelbrotRenderer {
+            r: self.r,
+            g: self.g,
+            b: self.b,
+            gamma: self.gamma,
+            frequency_agreg_type: self.frequency_agreg_type,
+        }
+    }
+}
+pub struct MandelbrotRenderer {
+    r: usize,
+    g: usize,
+    b: usize,
+    gamma: f64,
+
+    frequency_agreg_type: FrequencyAggregationType,
 }
 
 impl HistogramRendering for MandelbrotRenderer {
     fn render_image(self: Self, mut histogram: Histogram) -> Image {
-        histogram.reduce_resolution(FrequencyAggregationType::Linear);
+        histogram.reduce_resolution(self.frequency_agreg_type);
         let mut image = Image::new(histogram.width, histogram.height);
 
         for x in 0..histogram.width {
@@ -28,4 +53,9 @@ impl HistogramRendering for MandelbrotRenderer {
 
         image
     }
+}
+
+#[derive(Serialize, Deserialize)]
+pub enum RenderingConf {
+    MandelbrotRendering(MandelbrotRendererConf),
 }

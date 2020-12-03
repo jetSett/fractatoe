@@ -11,6 +11,7 @@ pub mod rendering;
 pub type F64Color = (f64, f64, f64);
 pub type HistogramCell = (f64, F64Color);
 
+#[derive(Deserialize, Serialize)]
 pub enum FrequencyAggregationType {
     Linear,
     Logarithmic,
@@ -112,4 +113,14 @@ pub trait HistogramGeneration {
 
 pub trait HistogramRendering {
     fn render_image(self: Self, histogram: Histogram) -> Image;
+}
+
+use julia::JuliaConf;
+use mandelbrot::MandelbrotConf;
+
+#[derive(Serialize, Deserialize)]
+pub enum FractalConf {
+    Mandelbrot(MandelbrotConf),
+    Julia(JuliaConf),
+    RenderingOnly(String),
 }

@@ -21,8 +21,8 @@ impl Into<[u8; 4]> for Pix {
 }
 
 pub struct Image {
-    width: usize,
-    _height: usize,
+    pub width: usize,
+    pub height: usize,
     pub pixels: Vec<Pix>,
 }
 
@@ -32,7 +32,7 @@ impl Image {
         pixels_vec.resize_with(width * height, Default::default);
         Image {
             width,
-            _height: height,
+            height: height,
             pixels: pixels_vec,
         }
     }
