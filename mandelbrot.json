@@ -1,20 +1,21 @@
 {
-  "fractal_conf": {
-    "Mandelbrot": {
-      "width": 400,
-      "height": 400,
-      "scaling": 0.01,
-      "resolution": 1,
-      "bound": 500.0,
-      "iterations": 1000
+    "fractal_conf": {
+        "Mandelbrot": {
+            "width": 500,
+            "height": 500,
+            "scaling": 1,
+            "resolution": 1,
+            "bound": 500.0,
+            "iterations": 1000
+        }
+    },
+    "rendering_conf": {
+        "MandelbrotRendering": {
+            "r": 100,
+            "g": 100,
+            "b": 255,
+            "gamma": 1,
+            "frequency_agreg_type": "Logarithmic"
+        }
     }
-  },
-  "rendering_conf": {
-    "MandelbrotRendering": {
-      "r": 100,
-      "g": 100,
-      "b": 255,
-      "gamma": 0.5
-    }
-  }
 }
