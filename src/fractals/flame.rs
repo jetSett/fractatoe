@@ -22,8 +22,8 @@ type CoefFlame = (f64, f64, f64, f64, f64, f64);
 
 // Histogram cell : (frequency, color)
 // Should be u8 but will be summed at some point so u32 to prevent overflow
-type Color = (u32, u32, u32);
-type HistogramCell = (u32, Color);
+type Color = (f64, f64, f64);
+type HistogramCell = (usize, Color);
 
 type FlamePoint = ((f64, f64), Color);
 
@@ -101,10 +101,7 @@ impl FlameBuilder {
         let coefs_inside = self.coefs_inside.ok_or("No coefs_inside precised")?;
 
         let mut histogram = vec![];
-        histogram.resize(
-            width * height * resolution * resolution,
-            (0, (0x00, 0x00, 0x00)),
-        );
+        histogram.resize(width * height * resolution * resolution, (0, (0., 0., 0.)));
 
         Ok(FlameAlgorithm {
             width,
@@ -161,9 +158,9 @@ impl FlameAlgorithm {
         let index_histogram = x + y * self.width * self.resolution;
         let (mut freq, (mut r, mut g, mut b)) = self.histogram[index_histogram];
         freq += 1;
-        r = (r + (point.1).0) / 2;
-        g = (g + (point.1).1) / 2;
-        b = (b + (point.1).2) / 2;
+        r = (r + (point.1).0) / 2.;
+        g = (g + (point.1).1) / 2.;
+        b = (b + (point.1).2) / 2.;
         self.histogram[index_histogram] = (freq, (r, g, b));
     }
 
@@ -174,14 +171,7 @@ impl FlameAlgorithm {
         mut rng: RAND,
     ) {
         for _ in 0..number_points {
-            let mut point: FlamePoint = (
-                rng.gen(),
-                (
-                    rng.gen::<u32>() % 256,
-                    rng.gen::<u32>() % 256,
-                    rng.gen::<u32>() % 256,
-                ),
-            );
+            let mut point: FlamePoint = rng.gen();
             for _ in 0..number_iterations {
                 self.add_point_to_histogram(point);
                 point = self.one_round(point, &mut rng);
@@ -193,7 +183,7 @@ impl FlameAlgorithm {
         let mut pixel_cumul: Vec<HistogramCell> = vec![];
 
         // Accumulation tab for the pixels
-        pixel_cumul.resize(self.width * self.height, (0, (0x00, 0x00, 0x00)));
+        pixel_cumul.resize(self.width * self.height, (0, (0., 0., 0.)));
 
         // for each virtual pixel
         for x in 0..(self.width * self.resolution) {
@@ -223,8 +213,8 @@ impl FlameAlgorithm {
             for y in 0..(self.height) {
                 let index = x + y * self.width;
                 let (mut freq_sum, (mut r_sum, mut g_sum, mut b_sum)) = pixel_cumul[index];
-                let resolution_sq = (self.resolution * self.resolution) as u32;
-                freq_sum /= resolution_sq;
+                let resolution_sq = (self.resolution * self.resolution) as f64;
+                freq_sum /= resolution_sq as usize;
                 r_sum /= resolution_sq;
                 g_sum /= resolution_sq;
                 b_sum /= resolution_sq;
@@ -244,13 +234,21 @@ impl FlameAlgorithm {
             for y in 0..(self.height - 1) {
                 let index = x + y * self.width;
                 let (freq, (r, g, b)) = pixel_cumul[index];
-                let r = r as u8;
-                let g = g as u8;
-                let b = b as u8;
 
-                let alpha = (((freq as f64).log(2.) / max_freq_log).powf(gamma) * 255.) as u8;
+                let alpha = ((freq as f64).log(2.) / max_freq_log).powf(gamma);
 
-                let pix = Pix { r, g, b, alpha };
+                let r = ((r * alpha) * 255.) as u8;
+                let g = ((g * alpha) * 255.) as u8;
+                let b = ((b * alpha) * 255.) as u8;
+
+                // println!("{}", alpha);
+
+                let pix = Pix {
+                    r,
+                    g,
+                    b,
+                    alpha: 0xff,
+                };
 
                 image.set_pixel(x, y, pix)
             }
