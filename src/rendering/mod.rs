@@ -1,6 +1,7 @@
 use crate::window::Image;
 use serde_derive::{Deserialize, Serialize};
 
+pub mod flame_rendering;
 pub mod mandelbrot_rendering;
 
 pub type F64Color = (f64, f64, f64);
@@ -106,10 +107,11 @@ pub trait HistogramRendering {
     fn render_image(self: Self, histogram: Histogram) -> Image;
 }
 
+pub use flame_rendering::FlameRendererConf;
 pub use mandelbrot_rendering::MandelbrotRendererConf;
 
 #[derive(Serialize, Deserialize)]
 pub enum RenderingConf {
     MandelbrotRendering(MandelbrotRendererConf),
-    FlameRendering(),
+    FlameRendering(FlameRendererConf),
 }

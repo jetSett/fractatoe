@@ -1,0 +1,58 @@
+{
+    "fractal_conf": {
+        "Flame": {
+            "width": 800,
+            "height": 800,
+            "variation_functions": ["Spherical", "Spherical"],
+            "flame_distribution": [1, 1],
+            "weight_variation": [0.5, 0.5],
+            "coefs_inside": [
+                [1.0, 0.1, 0.2, 0.1, 1.0, 0.2],
+                [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+            ],
+            "resolution": 3,
+            "number_points": 300,
+            "number_iterations": 30,
+            "seed": [
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42,
+                42
+            ]
+        }
+    },
+    "rendering_conf": {
+        "FlameRendering": {
+            "frequency_agreg_type": "Linear",
+            "gamma": 1.5
+        }
+    }
+}

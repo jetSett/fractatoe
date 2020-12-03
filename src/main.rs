@@ -39,6 +39,7 @@ fn get_histogram_from_fractal_conf(fractal_conf: fractals::FractalConf) -> Histo
     match fractal_conf {
         FractalConf::Mandelbrot(conf) => conf.build().build_histogram(),
         FractalConf::Julia(conf) => conf.build().build_histogram(),
+        FractalConf::Flame(conf) => conf.build().build_histogram(),
         FractalConf::RenderingOnly(histo_filename) => {
             let histo_data =
                 fs::read_to_string(histo_filename).expect("Could not read histogram file");
@@ -50,7 +51,7 @@ fn get_histogram_from_fractal_conf(fractal_conf: fractals::FractalConf) -> Histo
 fn render_image(rendering_conf: rendering::RenderingConf, histogram: Histogram) -> Image {
     match rendering_conf {
         RenderingConf::MandelbrotRendering(conf) => conf.build().render_image(histogram),
-        RenderingConf::FlameRendering() => todo!(),
+        RenderingConf::FlameRendering(conf) => conf.build().render_image(histogram),
     }
 }
 

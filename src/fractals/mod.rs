@@ -10,6 +10,7 @@ pub trait HistogramGeneration {
     fn build_histogram(self: Self) -> Histogram;
 }
 
+use flame::FlameConf;
 use julia::JuliaConf;
 use mandelbrot::MandelbrotConf;
 
@@ -17,5 +18,6 @@ use mandelbrot::MandelbrotConf;
 pub enum FractalConf {
     Mandelbrot(MandelbrotConf),
     Julia(JuliaConf),
+    Flame(FlameConf),
     RenderingOnly(String),
 }
