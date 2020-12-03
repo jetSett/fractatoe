@@ -6,6 +6,8 @@ pub mod flame;
 pub mod julia;
 pub mod mandelbrot;
 
+pub mod rendering;
+
 pub type F64Color = (f64, f64, f64);
 pub type HistogramCell = (f64, F64Color);
 

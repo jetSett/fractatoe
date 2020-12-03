@@ -83,7 +83,7 @@ fn main() -> Result<(), &'static str> {
 
     let histogram = mandelbroot_algo.build_histogram();
 
-    let image = fractals::mandelbrot::MandelbrotRenderer {
+    let image = fractals::rendering::MandelbrotRenderer {
         r: 255,
         g: 200,
         b: 10,
