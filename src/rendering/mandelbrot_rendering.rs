@@ -1,6 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 
 use super::{FrequencyAggregationType, Histogram, HistogramRendering};
+
 use crate::window::{Image, Pix};
 
 #[derive(Serialize, Deserialize)]
@@ -53,9 +54,4 @@ impl HistogramRendering for MandelbrotRenderer {
 
         image
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub enum RenderingConf {
-    MandelbrotRendering(MandelbrotRendererConf),
 }

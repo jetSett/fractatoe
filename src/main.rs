@@ -14,9 +14,10 @@ use serde_derive::{Deserialize, Serialize};
 use winit::dpi::PhysicalSize;
 
 use fractals::*;
-use rendering::RenderingConf;
+use rendering::{Histogram, HistogramRendering, RenderingConf};
 
 mod fractals;
+mod rendering;
 mod window;
 
 use window::Image;
@@ -49,6 +50,7 @@ fn get_histogram_from_fractal_conf(fractal_conf: fractals::FractalConf) -> Histo
 fn render_image(rendering_conf: rendering::RenderingConf, histogram: Histogram) -> Image {
     match rendering_conf {
         RenderingConf::MandelbrotRendering(conf) => conf.build().render_image(histogram),
+        RenderingConf::FlameRendering() => todo!(),
     }
 }
 
