@@ -2,6 +2,11 @@
 #![feature(trait_alias)]
 #![feature(box_syntax)]
 
+/*
+    TODO :
+    - Get params for a config file (toml) -> serdes
+    - Allow to save histograms in order to make multiple rendering -> serdes
+*/
 use argh::FromArgs;
 use log::info;
 use rand::{rngs::StdRng, SeedableRng};
@@ -30,22 +35,12 @@ struct Args {
 mod fractals;
 mod window;
 
-fn bisin(x: f64, y: f64) -> (f64, f64) {
-    (x.sin(), y.sin())
-}
-
-fn linear(x: f64, y: f64) -> (f64, f64) {
-    (x, y)
-}
-
-fn spherical(x: f64, y: f64) -> (f64, f64) {
-    let norm = x * x + y * y;
-    (x / norm, y / norm)
-}
+use fractals::{HistogramGeneration, HistogramRendering};
 
 fn main() -> Result<(), &'static str> {
     use fractals::flame::FlameBuilder;
     use fractals::flame::FlameDistribution;
+    use fractals::flame::VariationFunction;
 
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("debug")).init();
 
@@ -53,28 +48,48 @@ fn main() -> Result<(), &'static str> {
 
     info!("Initializing the flame algorithm");
 
-    let distribution = FlameDistribution::new(&[1, 1]).unwrap();
+    // let distribution = FlameDistribution::new(&[1, 1, 1]).unwrap();
 
     let (width, height) = (args.width, args.height);
 
-    let mut flame_algo = FlameBuilder::new()
-        .with_size(width, height)
-        .with_resolution(args.resolution)
-        .with_variation_functions(vec![box bisin, box linear, box spherical])
-        .with_flame_distribution(distribution)
-        .with_weight_variation(vec![0.45, 0.1, 0.45])
-        .with_coefs_inside(vec![
-            (0.9, 0.1, 0., 0.1, 0.9, 0.2),
-            (0.9, 0.1, 0.5, 0.1, 0.9, 0.5),
-        ])
-        .build()?;
+    // let mut flame_algo = FlameBuilder::new()
+    //     .with_size(width, height)
+    //     .with_resolution(args.resolution)
+    //     .with_variation_functions(vec![VariationFunction::Bisin, VariationFunction::Spherical])
+    //     .with_flame_distribution(distribution)
+    //     .with_weight_variation(vec![0.5, 0.5])
+    //     .with_coefs_inside(vec![
+    //         (0.9, 0.1, 0., 0.1, 0.9, 0.2),
+    //         (0.9, 0.1, 0.5, 0.1, 0.9, 0.5),
+    //         (1., 1., -0.3, 1., 1., 0.3),
+    //     ])
+    //     .build()?;
 
-    info!("Computing the histogram");
-    let rng = StdRng::seed_from_u64(args.seed.unwrap_or(4242));
-    flame_algo.compute_histogram(args.number_points, args.number_iterations, rng);
+    // info!("Computing the histogram");
+    // let rng = StdRng::seed_from_u64(args.seed.unwrap_or(4242));
+    // flame_algo.compute_histogram(args.number_points, args.number_iterations, rng);
 
     info!("Generating the image");
-    let image = flame_algo.render_image(args.gamma.unwrap_or(1.));
+    // let image = flame_algo.render_image(args.gamma.unwrap_or(1.));
+
+    let mandelbroot_algo = fractals::mandelbrot::Mandelbrot {
+        width: width,
+        height: height,
+        scaling: 0.01,
+        resolution: 1,
+        bound: 50.,
+        iterations: 1000,
+    };
+
+    let histogram = mandelbroot_algo.build_histogram();
+
+    let image = fractals::mandelbrot::MandelbrotRenderer {
+        r: 255,
+        g: 200,
+        b: 10,
+        gamma: 0.5,
+    }
+    .render_image(histogram);
 
     info!("Starting main loop");
     if args.display {
