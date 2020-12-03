@@ -13,10 +13,14 @@ struct Args {
     width: usize,
     #[argh(positional, description = "height of the fractal")]
     height: usize,
+    #[argh(positional, description = "number of points lauched for flame")]
+    number_points: usize,
     #[argh(positional, description = "number of iterations for the flame point")]
-    number_iteration: usize,
+    number_iterations: usize,
     #[argh(positional, description = "resolution of the flame supersampling")]
     resolution: usize,
+    #[argh(option, description = "gamma reduction")]
+    gamma: Option<f64>,
     #[argh(option, description = "resolution of the flame supersampling")]
     seed: Option<u64>,
     #[argh(switch, description = "resolution of the flame supersampling")]
@@ -27,11 +31,16 @@ mod fractals;
 mod window;
 
 fn bisin(x: f64, y: f64) -> (f64, f64) {
-    (y.sin(), x.sin())
+    (x.sin(), y.sin())
 }
 
-fn bicos(x: f64, y: f64) -> (f64, f64) {
-    (y.cos(), x.cos())
+fn linear(x: f64, y: f64) -> (f64, f64) {
+    (x, y)
+}
+
+fn spherical(x: f64, y: f64) -> (f64, f64) {
+    let norm = x * x + y * y;
+    (x / norm, y / norm)
 }
 
 fn main() -> Result<(), &'static str> {
@@ -51,21 +60,21 @@ fn main() -> Result<(), &'static str> {
     let mut flame_algo = FlameBuilder::new()
         .with_size(width, height)
         .with_resolution(args.resolution)
-        .with_variation_functions(vec![box bisin, box bicos])
+        .with_variation_functions(vec![box bisin, box linear, box spherical])
         .with_flame_distribution(distribution)
-        .with_weight_variation(vec![0.5, 0.5])
+        .with_weight_variation(vec![0.45, 0.1, 0.45])
         .with_coefs_inside(vec![
-            (1., 0.2, 0., 0.2, 1., 0.),
-            (1., 1., 0.2, 2.3, 0.3, 0.),
+            (0.9, 0.1, 0., 0.1, 0.9, 0.2),
+            (0.9, 0.1, 0.5, 0.1, 0.9, 0.5),
         ])
         .build()?;
 
     info!("Computing the histogram");
     let rng = StdRng::seed_from_u64(args.seed.unwrap_or(4242));
-    flame_algo.compute_histogram(args.number_iteration, rng);
+    flame_algo.compute_histogram(args.number_points, args.number_iterations, rng);
 
     info!("Generating the image");
-    let image = flame_algo.render_image(1.);
+    let image = flame_algo.render_image(args.gamma.unwrap_or(1.));
 
     info!("Starting main loop");
     if args.display {

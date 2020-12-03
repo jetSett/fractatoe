@@ -11,8 +11,8 @@ fn float_point_to_int_point(
     resolution: usize,
 ) -> (usize, usize) {
     (
-        (x * (width * resolution) as f64) as usize,
-        (y * (height * resolution) as f64) as usize,
+        (x.min(1.) * (width * resolution) as f64).max(1.) as usize - 1,
+        (y.min(1.) * (height * resolution) as f64).max(1.) as usize - 1,
     )
 }
 
@@ -133,7 +133,7 @@ pub struct FlameAlgorithm {
 }
 
 impl FlameAlgorithm {
-    fn one_turn<RAND: Rng>(&self, point: FlamePoint, rng: &mut RAND) -> FlamePoint {
+    fn one_round<RAND: Rng>(&self, point: FlamePoint, rng: &mut RAND) -> FlamePoint {
         let (mut x_current, mut y_current) = (0., 0.);
         let (x, y) = point.0;
         let color: Color = point.1;
@@ -167,18 +167,25 @@ impl FlameAlgorithm {
         self.histogram[index_histogram] = (freq, (r, g, b));
     }
 
-    pub fn compute_histogram<RAND: Rng>(&mut self, number_iterations: usize, mut rng: RAND) {
-        let mut point: FlamePoint = (
-            rng.gen(),
-            (
-                rng.gen::<u32>() % 256,
-                rng.gen::<u32>() % 256,
-                rng.gen::<u32>() % 256,
-            ),
-        );
-        for _ in 0..number_iterations {
-            self.add_point_to_histogram(point);
-            point = self.one_turn(point, &mut rng);
+    pub fn compute_histogram<RAND: Rng>(
+        &mut self,
+        number_points: usize,
+        number_iterations: usize,
+        mut rng: RAND,
+    ) {
+        for _ in 0..number_points {
+            let mut point: FlamePoint = (
+                rng.gen(),
+                (
+                    rng.gen::<u32>() % 256,
+                    rng.gen::<u32>() % 256,
+                    rng.gen::<u32>() % 256,
+                ),
+            );
+            for _ in 0..number_iterations {
+                self.add_point_to_histogram(point);
+                point = self.one_round(point, &mut rng);
+            }
         }
     }
 
