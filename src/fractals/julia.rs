@@ -2,7 +2,6 @@ use num::complex::Complex;
 use serde_derive::{Deserialize, Serialize};
 
 use super::{Histogram, HistogramGeneration};
-use crate::window::{Image, Pix};
 
 #[derive(Serialize, Deserialize)]
 pub struct JuliaConf {

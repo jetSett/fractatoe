@@ -1,8 +1,8 @@
 {
     "fractal_conf": {
         "Flame": {
-            "width": 800,
-            "height": 800,
+            "width": 400,
+            "height": 400,
             "variation_functions": ["Spherical", "Bisin"],
             "weight_variation": [0.5, 0.5],
             "flame_distribution": [2, 1],

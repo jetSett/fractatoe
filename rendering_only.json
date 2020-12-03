@@ -1,0 +1,11 @@
+{
+    "fractal_conf": {
+        "RenderingOnly": "histogram_flame.json"
+    },
+    "rendering_conf": {
+        "FlameRendering": {
+            "frequency_agreg_type": "Logarithmic",
+            "gamma": 2.0
+        }
+    }
+}

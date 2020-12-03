@@ -7,6 +7,7 @@
     - Allow to save histograms in order to make multiple rendering -> serdes
 */
 use std::fs;
+use std::io::Write;
 
 use crate::fractals::HistogramGeneration;
 use argh::FromArgs;
@@ -27,6 +28,8 @@ use window::Image;
 struct Args {
     #[argh(positional)]
     config_filename: String,
+    #[argh(option, description = "save the histogram to a file")]
+    save_histogram: Option<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -65,6 +68,16 @@ fn main() -> Result<(), &'static str> {
         serde_json::from_str(json_config.as_str()).expect("Error in the config file");
 
     let histogram = get_histogram_from_fractal_conf(app_config.fractal_conf);
+
+    if let Some(filename) = args.save_histogram {
+        let mut outfile = fs::File::create(filename).expect("Unable to open the histogram file");
+        outfile
+            .write(
+                &serde_json::to_vec_pretty(&histogram)
+                    .expect("Unable to convert the histogram in json file"),
+            )
+            .expect("Unable to write the histogram file");
+    }
 
     let image = render_image(app_config.rendering_conf, histogram);
 
