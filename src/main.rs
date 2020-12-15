@@ -55,6 +55,7 @@ fn render_image(rendering_conf: rendering::RenderingConf, histogram: Histogram) 
     match rendering_conf {
         RenderingConf::MandelbrotRendering(conf) => conf.build().render_image(histogram),
         RenderingConf::FlameRendering(conf) => conf.build().render_image(histogram),
+        RenderingConf::GaussianRendering(conf) => conf.build().render_image(histogram),
     }
 }
 

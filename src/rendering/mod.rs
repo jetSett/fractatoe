@@ -2,9 +2,10 @@ use crate::window::Image;
 use serde_derive::{Deserialize, Serialize};
 
 pub mod flame_rendering;
+pub mod gaussian_rendering;
 pub mod mandelbrot_rendering;
 
-pub type F64Color = (f64, f64, f64);
+pub type F64Color = f64;
 pub type HistogramCell = (f64, F64Color);
 
 #[derive(Deserialize, Serialize)]
@@ -24,7 +25,7 @@ pub struct Histogram {
 impl Histogram {
     pub fn new(width: usize, height: usize, resolution: usize) -> Self {
         let mut data: Vec<HistogramCell> = Vec::new();
-        data.resize(width * height * resolution * resolution, (0., (0., 0., 0.)));
+        data.resize(width * height * resolution * resolution, (0., 0.));
         Histogram {
             width,
             height,
@@ -42,27 +43,25 @@ impl Histogram {
         let mut pixel_cumul: Vec<HistogramCell> = vec![];
 
         // Accumulation tab for the pixels
-        pixel_cumul.resize(self.width * self.height, (0., (0., 0., 0.)));
+        pixel_cumul.resize(self.width * self.height, (0., 0.));
 
         // for each virtual pixel
         for x in 0..(self.width * self.resolution) {
             for y in 0..(self.height * self.resolution) {
                 // Take the frequence + color for the current virtual pixel
-                let (freq, (r, g, b)) = self.data[x + self.width * self.resolution * y];
+                let (freq, color) = self.data[x + self.width * self.resolution * y];
 
                 // Find the associated real pixel (just divide each coordinate by resolution)
                 let avg_point = (x / self.resolution, y / self.resolution);
 
                 // sum with existing
-                let (mut freq_sum, (mut r_sum, mut g_sum, mut b_sum)) =
+                let (mut freq_sum, mut color_sum) =
                     pixel_cumul[avg_point.0 + avg_point.1 * self.width];
 
                 freq_sum += freq;
-                r_sum += r;
-                g_sum += g;
-                b_sum += b;
-                pixel_cumul[avg_point.0 + avg_point.1 * self.width] =
-                    (freq_sum, (r_sum, g_sum, b_sum))
+                color_sum += color;
+
+                pixel_cumul[avg_point.0 + avg_point.1 * self.width] = (freq_sum, color_sum)
             }
         }
 
@@ -73,17 +72,15 @@ impl Histogram {
         for x in 0..(self.width) {
             for y in 0..(self.height) {
                 let index = x + y * self.width;
-                let (freq_sum, (mut r_sum, mut g_sum, mut b_sum)) = pixel_cumul[index];
+                let (freq_sum, mut color_sum) = pixel_cumul[index];
                 let resolution_sq = (self.resolution * self.resolution) as f64;
-                r_sum /= resolution_sq;
-                g_sum /= resolution_sq;
-                b_sum /= resolution_sq;
+                color_sum /= resolution_sq;
 
                 if max_freq < freq_sum as f64 {
                     max_freq = freq_sum as f64;
                 }
 
-                pixel_cumul[index] = (freq_sum, (r_sum, g_sum, b_sum));
+                pixel_cumul[index] = (freq_sum, color_sum);
             }
         }
         println!("Max freq : {}", max_freq);
@@ -108,10 +105,12 @@ pub trait HistogramRendering {
 }
 
 pub use flame_rendering::FlameRendererConf;
+pub use gaussian_rendering::GaussianRendererConf;
 pub use mandelbrot_rendering::MandelbrotRendererConf;
 
 #[derive(Serialize, Deserialize)]
 pub enum RenderingConf {
     MandelbrotRendering(MandelbrotRendererConf),
     FlameRendering(FlameRendererConf),
+    GaussianRendering(GaussianRendererConf),
 }
