@@ -8,6 +8,9 @@ use crate::window::{Image, Pix};
 pub struct FlameRendererConf {
     pub frequency_agreg_type: FrequencyAggregationType,
     pub gamma: f64,
+    pub r: u8,
+    pub g: u8,
+    pub b: u8,
 }
 
 impl FlameRendererConf {
@@ -15,11 +18,17 @@ impl FlameRendererConf {
         FlameRenderer {
             frequency_agreg_type: self.frequency_agreg_type,
             gamma: self.gamma,
+            r: self.r,
+            g: self.g,
+            b: self.b,
         }
     }
 }
 pub struct FlameRenderer {
     frequency_agreg_type: FrequencyAggregationType,
+    r: u8,
+    g: u8,
+    b: u8,
     gamma: f64,
 }
 
@@ -31,13 +40,13 @@ impl HistogramRendering for FlameRenderer {
 
         for x in 0..(histogram.width - 1) {
             for y in 0..(histogram.height - 1) {
-                let (mut freq, (r, g, b)) = histogram.get_cell(x, y);
+                let (mut freq, color) = histogram.get_cell(x, y);
 
                 freq = freq.powf(self.gamma);
 
-                let r = ((r * freq) * 255.) as u8;
-                let g = ((g * freq) * 255.) as u8;
-                let b = ((b * freq) * 255.) as u8;
+                let r = (self.r as f64 * color * freq) as u8;
+                let g = (self.g as f64 * color * freq) as u8;
+                let b = (self.b as f64 * color * freq) as u8;
 
                 let pix = Pix {
                     r,

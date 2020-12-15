@@ -13,10 +13,10 @@ fn float_point_to_int_point(
     width: usize,
     height: usize,
     resolution: usize,
-) -> (usize, usize) {
+) -> (i32, i32) {
     (
-        (x.min(1.) * (width * resolution) as f64).max(1.) as usize - 1,
-        (y.min(1.) * (height * resolution) as f64).max(1.) as usize - 1,
+        (x * (width * resolution) as f64) as i32 - 1,
+        (y * (height * resolution) as f64) as i32 - 1,
     )
 }
 
@@ -41,11 +41,26 @@ fn spherical(x: f64, y: f64) -> (f64, f64) {
     (x / norm, y / norm)
 }
 
+fn julia(x: f64, y: f64) -> (f64, f64) {
+    let theta: f64 = (x / y).atan();
+    let sqrt_r = (x * x + y * y).sqrt().sqrt();
+    (sqrt_r * (theta / 2.).cos(), sqrt_r * (theta / 2.).sin())
+}
+
+fn swirl(x: f64, y: f64) -> (f64, f64) {
+    let r_sq: f64 = x * x + y * y;
+    (
+        x * (r_sq).sin() - y * (r_sq).cos(),
+        x * (r_sq).cos() + y * (r_sq).sin(),
+    )
+}
 #[derive(Serialize, Deserialize)]
 pub enum VariationFunction {
     Bisin,
     Linear,
     Spherical,
+    Julia,
+    Swirl,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -58,6 +73,7 @@ pub struct FlameConf {
     height: usize,
     resolution: usize,
     number_points: usize,
+    iteration_offset: usize,
     number_iterations: usize,
 
     seed: [u8; 32],
@@ -73,6 +89,8 @@ impl FlameConf {
                 VariationFunction::Bisin => box bisin,
                 VariationFunction::Linear => box linear,
                 VariationFunction::Spherical => box spherical,
+                VariationFunction::Julia => box julia,
+                VariationFunction::Swirl => box swirl,
             };
             variation_functions.push(funct);
         }
@@ -90,6 +108,7 @@ impl FlameConf {
             resolution: self.resolution,
             number_points: self.number_points,
             number_iterations: self.number_iterations,
+            iteration_offset: self.iteration_offset,
 
             rng,
         }
@@ -104,6 +123,7 @@ pub struct FlameAlgorithm {
 
     number_points: usize,
     number_iterations: usize,
+    iteration_offset: usize,
 
     width: usize,
     height: usize,
@@ -117,6 +137,9 @@ impl HistogramGeneration for FlameAlgorithm {
         let mut histogram = Histogram::new(self.width, self.height, self.resolution);
         for _ in 0..self.number_points {
             let mut point: FlamePoint = self.rng.gen();
+            for _ in 0..self.iteration_offset {
+                point = self.one_round(point);
+            }
             for _ in 0..self.number_iterations {
                 self.add_point_to_histogram(point, &mut histogram);
                 point = self.one_round(point);
@@ -150,23 +173,16 @@ impl FlameAlgorithm {
 
     fn add_point_to_histogram(&mut self, point: FlamePoint, histogram: &mut Histogram) {
         let (x, y) = float_point_to_int_point(point.0, self.width, self.height, self.resolution);
-        let (mut freq, (mut r, mut g, mut b)) = histogram.get_cell(x, y);
-        freq += 1.;
-        if r == 0. {
-            r = (point.1).0;
-        } else {
-            r = (r + (point.1).0) / 2.;
+        if 0 <= x
+            && x < (self.width * self.resolution) as i32
+            && 0 <= y
+            && y < (self.height * self.resolution) as i32
+        {
+            let (mut freq, mut color) = histogram.get_cell(x as usize, y as usize);
+            freq += 1.;
+            color = (color + point.1) / 2.;
+
+            histogram.set_cell(x as usize, y as usize, (freq, color));
         }
-        if g == 0. {
-            g = (point.1).0;
-        } else {
-            g = (g + (point.1).0) / 2.;
-        }
-        if b == 0. {
-            b = (point.1).0;
-        } else {
-            b = (b + (point.1).0) / 2.;
-        }
-        histogram.set_cell(x, y, (freq, (r, g, b)));
     }
 }

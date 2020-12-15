@@ -59,7 +59,7 @@ impl HistogramGeneration for Mandelbrot {
                 let y_float = (2. * (j as f64 / ((self.height * self.resolution) as f64)) - 1.)
                     / self.scaling;
                 let div = mandelbrot_divergence(x_float, y_float, self.bound, self.iterations);
-                histogram.set_cell(i, j, (div as f64, (255., 255., 255.)))
+                histogram.set_cell(i, j, (div as f64, 0.))
             }
         }
         histogram

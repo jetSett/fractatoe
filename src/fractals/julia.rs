@@ -62,7 +62,7 @@ impl HistogramGeneration for Julia {
                     / self.scaling;
 
                 let div = julia_divergence(x_float, y_float, self.c, self.bound, self.iterations);
-                histogram.set_cell(i, j, (div as f64, (255., 255., 255.)))
+                histogram.set_cell(i, j, (div as f64, 0.))
             }
         }
         histogram
