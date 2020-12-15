@@ -30,6 +30,8 @@ struct Args {
     config_filename: String,
     #[argh(option, description = "save the histogram to a file")]
     save_histogram: Option<String>,
+    #[argh(switch, description = "do not render")]
+    no_rendering: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -80,13 +82,15 @@ fn main() -> Result<(), &'static str> {
             .expect("Unable to write the histogram file");
     }
 
-    let image = render_image(app_config.rendering_conf, histogram);
+    if !args.no_rendering {
+        let image = render_image(app_config.rendering_conf, histogram);
 
-    window::show_image(
-        PhysicalSize::new(image.width as f32, image.height as f32),
-        image,
-    )
-    .unwrap();
+        window::show_image(
+            PhysicalSize::new(image.width as f32, image.height as f32),
+            image,
+        )
+        .unwrap();
+    }
 
     Ok(())
 }
