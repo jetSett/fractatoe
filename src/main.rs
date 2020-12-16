@@ -2,10 +2,6 @@
 #![feature(trait_alias)]
 #![feature(box_syntax)]
 
-/*
-    TODO :
-    - Allow to save histograms in order to make multiple rendering -> serdes
-*/
 use std::fs;
 use std::io::Write;
 
