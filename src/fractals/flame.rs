@@ -1,7 +1,9 @@
 use serde_derive::{Deserialize, Serialize};
 
+use rand_seeder::Seeder;
+
 use rand::distributions::weighted::WeightedIndex;
-use rand::{Rng, SeedableRng};
+use rand::Rng;
 
 use super::HistogramGeneration;
 use crate::rendering::{F64Color, Histogram};
@@ -76,13 +78,13 @@ pub struct FlameConf {
     iteration_offset: usize,
     number_iterations: usize,
 
-    seed: [u8; 32],
+    seed: String,
 }
 impl FlameConf {
     pub fn build(self) -> FlameAlgorithm {
         let mut variation_functions = vec![];
 
-        let rng = FlameRng::from_seed(self.seed);
+        let rng = Seeder::from(self.seed).make_rng();
 
         for funct in self.variation_functions {
             let funct: FlameFunction = match funct {
