@@ -18,6 +18,7 @@ use fractals::*;
 use rendering::{Histogram, HistogramRendering, RenderingConf};
 
 mod fractals;
+mod image;
 mod png_save;
 mod rendering;
 mod window;
@@ -31,6 +32,8 @@ struct Args {
     config_filename: String,
     #[argh(option, description = "save the histogram to a file")]
     save_histogram: Option<String>,
+    #[argh(option, description = "save the image to a file")]
+    save_image: Option<String>,
     #[argh(switch, description = "do not render")]
     no_rendering: bool,
 }
@@ -85,6 +88,10 @@ fn main() -> Result<(), &'static str> {
 
     if !args.no_rendering {
         let image = render_image(app_config.rendering_conf, histogram);
+
+        if let Some(image_path) = args.save_image {
+            png_save::save_image(&image, image_path);
+        }
 
         window::show_image(
             PhysicalSize::new(image.width as f32, image.height as f32),
