@@ -34,8 +34,6 @@ struct Args {
     save_histogram: Option<String>,
     #[argh(option, description = "save the image to a file")]
     save_image: Option<String>,
-    #[argh(switch, description = "do not render")]
-    no_rendering: bool,
     #[argh(switch, description = "do not show on screen")]
     no_show: bool,
 }
@@ -88,7 +86,7 @@ fn main() -> Result<(), &'static str> {
             .expect("Unable to write the histogram file");
     }
 
-    if !args.no_rendering {
+    if args.save_image.is_some() || !args.no_show {
         let image = render_image(app_config.rendering_conf, histogram);
 
         if let Some(image_path) = args.save_image {
