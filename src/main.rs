@@ -36,6 +36,8 @@ struct Args {
     save_image: Option<String>,
     #[argh(switch, description = "do not render")]
     no_rendering: bool,
+    #[argh(switch, description = "do not show on screen")]
+    no_show: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -93,11 +95,13 @@ fn main() -> Result<(), &'static str> {
             png_save::save_image(&image, image_path);
         }
 
-        window::show_image(
-            PhysicalSize::new(image.width as f32, image.height as f32),
-            image,
-        )
-        .unwrap();
+        if !args.no_show {
+            window::show_image(
+                PhysicalSize::new(image.width as f32, image.height as f32),
+                image,
+            )
+            .unwrap();
+        }
     }
 
     Ok(())
