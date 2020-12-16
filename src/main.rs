@@ -61,7 +61,7 @@ fn render_image(rendering_conf: rendering::RenderingConf, histogram: Histogram) 
     }
 }
 
-fn main() -> Result<(), &'static str> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::Builder::from_env(env_logger::Env::default()).init();
 
     let args: Args = argh::from_env();
@@ -86,15 +86,14 @@ fn main() -> Result<(), &'static str> {
         let image = render_image(app_config.rendering_conf, histogram);
 
         if let Some(image_path) = args.save_image {
-            png_save::save_image(&image, image_path);
+            png_save::save_image(&image, image_path)?;
         }
 
         if !args.no_show {
             window::show_image(
                 PhysicalSize::new(image.width as f32, image.height as f32),
                 image,
-            )
-            .unwrap();
+            )?
         }
     }
 

@@ -11,12 +11,11 @@ use crate::image::Image;
 pub fn show_image<Size: Into<winit::dpi::Size>>(
     size: Size,
     image: Image,
-) -> Result<(), pixels::Error> {
+) -> Result<(), Box<dyn std::error::Error>> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_inner_size(size)
-        .build(&event_loop)
-        .unwrap();
+        .build(&event_loop)?;
 
     let size = window.inner_size();
     let width: u32 = size.width;
