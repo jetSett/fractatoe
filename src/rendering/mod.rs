@@ -1,4 +1,4 @@
-use crate::window::Image;
+use crate::image::Image;
 use serde_derive::{Deserialize, Serialize};
 
 pub mod flame_rendering;

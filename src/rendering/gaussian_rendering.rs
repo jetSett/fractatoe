@@ -2,7 +2,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use super::{FrequencyAggregationType, Histogram, HistogramRendering};
 
-use crate::window::{Image, Pix};
+use crate::image::{Image, Pix};
 
 #[derive(Serialize, Deserialize)]
 pub struct GaussianColor {
@@ -17,7 +17,7 @@ pub struct GaussianColor {
 }
 
 impl GaussianColor {
-    fn error_function(x: f64) -> f64 {
+    fn error_function(_x: f64) -> f64 {
         1.
     }
 
@@ -28,7 +28,7 @@ impl GaussianColor {
             * std::f64::consts::PI.sqrt()
             * self.std_deviation
             / 2.;
-        let gauss = (exponent.exp() / reduction_factor);
+        let gauss = exponent.exp() / reduction_factor;
         // dbg!(gauss);
         // assert!(gauss <= 1. && gauss >= 0.);
         let factor = gauss * self.scaling_factor;
@@ -64,7 +64,7 @@ pub struct GaussianRenderer {
 }
 
 impl HistogramRendering for GaussianRenderer {
-    fn render_image(self: Self, mut histogram: Histogram) -> crate::window::Image {
+    fn render_image(self: Self, mut histogram: Histogram) -> Image {
         histogram.reduce_resolution(self.frequency_agreg_type);
         let mut image = Image::new(histogram.width, histogram.height);
 

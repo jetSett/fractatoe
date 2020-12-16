@@ -18,10 +18,11 @@ use fractals::*;
 use rendering::{Histogram, HistogramRendering, RenderingConf};
 
 mod fractals;
+mod png_save;
 mod rendering;
 mod window;
 
-use window::Image;
+use image::Image;
 
 #[derive(FromArgs)]
 /// Greet

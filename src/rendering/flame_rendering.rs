@@ -2,7 +2,7 @@ use serde_derive::{Deserialize, Serialize};
 
 use super::{FrequencyAggregationType, Histogram, HistogramRendering};
 
-use crate::window::{Image, Pix};
+use crate::image::{Image, Pix};
 
 #[derive(Serialize, Deserialize)]
 pub struct FlameRendererConf {
