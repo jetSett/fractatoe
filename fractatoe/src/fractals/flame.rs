@@ -84,7 +84,7 @@ impl FlameConf {
     pub fn build(self) -> FlameAlgorithm {
         let mut variation_functions = vec![];
 
-        let rng = Seeder::from(self.seed).make_rng();
+        let rng: FlameRng = Seeder::from(self.seed).make_rng();
 
         for funct in self.variation_functions {
             let funct: FlameFunction = match funct {
