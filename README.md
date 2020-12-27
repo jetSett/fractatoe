@@ -1,1 +1,3 @@
-# rusty_fractals
+# Fractatoe
+
+A Fractal generation and rendering library.

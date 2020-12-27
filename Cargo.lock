@@ -410,25 +410,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "flame_fractal"
-version = "0.1.0"
-dependencies = [
- "argh",
- "env_logger",
- "log",
- "num",
- "pixels",
- "png",
- "rand",
- "rand_seeder",
- "serde",
- "serde_derive",
- "serde_json",
- "winit",
- "winit_input_helper",
-]
-
-[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -448,6 +429,37 @@ name = "foreign-types-shared"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00b0228411908ca8685dba7fc2cdd70ec9990a6e753e89b6ac91a84c40fbaf4b"
+
+[[package]]
+name = "fractatoe"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "num",
+ "pixels",
+ "rand",
+ "rand_seeder",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "winit_input_helper",
+]
+
+[[package]]
+name = "fractatoe_histogram_generator"
+version = "0.1.0"
+dependencies = [
+ "argh",
+ "env_logger",
+ "fractatoe",
+ "log",
+ "pixels",
+ "png",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "winit",
+]
 
 [[package]]
 name = "fuchsia-zircon"
@@ -728,9 +740,9 @@ dependencies = [
 
 [[package]]
 name = "heck"
-version = "0.3.1"
+version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "20564e78d53d2bb135c343b3f47714a56af2061f1c928fdb541dc7b9fdd94205"
+checksum = "87cbf45460356b7deeb5e3415b5563308c0a9b057c85e12b06ad551f98d0a6ac"
 dependencies = [
  "unicode-segmentation",
 ]
