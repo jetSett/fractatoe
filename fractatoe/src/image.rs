@@ -24,7 +24,7 @@ impl Image {
         pixels_vec.resize_with(width * height, Default::default);
         Image {
             width,
-            height: height,
+            height,
             pixels: pixels_vec,
         }
     }

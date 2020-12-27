@@ -102,7 +102,7 @@ impl FlameConf {
 
         FlameAlgorithm {
             variation_functions,
-            flame_distribution: flame_distribution,
+            flame_distribution,
             weight_variation: self.weight_variation,
             coefs_inside: self.coefs_inside,
             width: self.width,
@@ -154,20 +154,24 @@ impl HistogramGeneration for FlameAlgorithm {
 impl FlameAlgorithm {
     fn one_round(&mut self, point: FlamePoint) -> FlamePoint {
         let (mut x_current, mut y_current) = (0., 0.);
-        let (x, y) = point.0;
+        let (x_point, y_point) = point.0;
         let color = point.1;
 
-        let j = self.rng.sample(&self.flame_distribution);
+        let transformation_index = self.rng.sample(&self.flame_distribution);
+        let coefs = self.coefs_inside[transformation_index];
 
-        let m = self.variation_functions.len();
+        for (weight, variation_function) in self
+            .weight_variation
+            .iter()
+            .zip(self.variation_functions.iter())
+        {
+            let (x_translate, y_translate) = variation_function(
+                coefs.0 * x_point + coefs.1 * y_point + coefs.2,
+                coefs.3 * x_point + coefs.4 * y_point + coefs.5,
+            );
 
-        for k in 0..(m) {
-            let (a, b, c, d, e, f) = self.coefs_inside[j];
-            let (x_translate, y_translate) =
-                self.variation_functions[k](a * x + b * y + c, d * x + e * y + f);
-
-            x_current += self.weight_variation[k] * x_translate;
-            y_current += self.weight_variation[k] * y_translate;
+            x_current += weight * x_translate;
+            y_current += weight * y_translate;
         }
 
         ((x_current, y_current), color)

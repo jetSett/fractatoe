@@ -46,7 +46,7 @@ fn mandelbrot_divergence(x: f64, y: f64, bound: f64, iterations: usize) -> usize
         }
         z = z * z + c;
     }
-    return 0;
+    0
 }
 impl HistogramGeneration for Mandelbrot {
     fn build_histogram(self) -> Histogram {

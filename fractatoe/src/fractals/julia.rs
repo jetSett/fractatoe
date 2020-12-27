@@ -47,7 +47,7 @@ fn julia_divergence(x: f64, y: f64, c: Complex<f64>, bound: f64, iterations: usi
         }
         z = z * z + c;
     }
-    return 0.;
+    0.
 }
 
 impl HistogramGeneration for Julia {

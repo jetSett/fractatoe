@@ -7,7 +7,7 @@ pub mod julia;
 pub mod mandelbrot;
 
 pub trait HistogramGeneration {
-    fn build_histogram(self: Self) -> Histogram;
+    fn build_histogram(self) -> Histogram;
 }
 
 use flame::FlameConf;

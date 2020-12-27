@@ -54,7 +54,7 @@ pub struct MandelbrotRenderer {
 }
 
 impl HistogramRendering for MandelbrotRenderer {
-    fn render_image(self: Self, mut histogram: Histogram) -> Image {
+    fn render_image(self, mut histogram: Histogram) -> Image {
         histogram.reduce_resolution(self.frequency_agreg_type);
         let mut image = Image::new(histogram.width, histogram.height);
 

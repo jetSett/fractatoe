@@ -101,7 +101,7 @@ impl Histogram {
 }
 
 pub trait HistogramRendering {
-    fn render_image(self: Self, histogram: Histogram) -> Image;
+    fn render_image(self, histogram: Histogram) -> Image;
 }
 
 pub use flame_rendering::FlameRendererConf;
