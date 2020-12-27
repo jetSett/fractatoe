@@ -1,5 +1,6 @@
 [workspace]
 members = [
     "fractatoe",
-    "histogram_generator"
+    "histogram_generator",
+    "histogram_renderer"
 ]

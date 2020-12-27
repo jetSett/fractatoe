@@ -103,16 +103,3 @@ impl Histogram {
 pub trait HistogramRendering {
     fn render_image(self, histogram: Histogram) -> Image;
 }
-
-pub use flame_rendering::FlameRendererConf;
-pub use gaussian_rendering::GaussianRendererConf;
-pub use mandelbrot_rendering::GreyscaleRendererConf;
-pub use mandelbrot_rendering::MandelbrotRendererConf;
-
-#[derive(Serialize, Deserialize)]
-pub enum RenderingConf {
-    MandelbrotRendering(MandelbrotRendererConf),
-    FlameRendering(FlameRendererConf),
-    GaussianRendering(GaussianRendererConf),
-    GreyscaleRendering(GreyscaleRendererConf),
-}

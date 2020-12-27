@@ -8,10 +8,7 @@ use winit::{
 
 use fractatoe::image::Image;
 
-pub fn show_image<Size: Into<winit::dpi::Size>>(
-    size: Size,
-    image: Image,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn show_image<Size: Into<winit::dpi::Size>>(size: Size, image: Image) -> anyhow::Result<()> {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new()
         .with_inner_size(size)

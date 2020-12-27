@@ -4,10 +4,7 @@ use std::path::Path;
 
 use fractatoe::image::Image;
 
-pub fn save_image<P: AsRef<Path>>(
-    image: &Image,
-    path: P,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn save_image<P: AsRef<Path>>(image: &Image, path: P) -> anyhow::Result<()> {
     let file = File::create(path)?;
     let w = BufWriter::new(file);
 

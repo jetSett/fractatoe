@@ -6,38 +6,20 @@ use std::fs;
 use std::io::Write;
 
 use argh::FromArgs;
-use fractatoe::{
-    fractals::HistogramGeneration,
-    image::Image,
-    rendering::{Histogram, HistogramRendering, RenderingConf},
-};
-use serde_derive::{Deserialize, Serialize};
-use winit::dpi::PhysicalSize;
+use fractatoe::{fractals::HistogramGeneration, rendering::Histogram};
 
 mod config;
-mod png_save;
-mod window;
 
 #[derive(FromArgs)]
-/// Greet
+/// Arguments
 struct Args {
     #[argh(positional)]
     config_filename: String,
-    #[argh(option, description = "save the histogram to a file")]
-    save_histogram: Option<String>,
-    #[argh(option, description = "save the image to a file")]
-    save_image: Option<String>,
-    #[argh(switch, description = "do not show on screen")]
-    no_show: bool,
+    #[argh(positional, description = "save the histogram to a file")]
+    output_histogram: String,
 }
 
 use config::FractalConf;
-
-#[derive(Serialize, Deserialize)]
-pub struct AppConf {
-    fractal_conf: FractalConf,
-    rendering_conf: RenderingConf,
-}
 
 fn get_histogram_from_fractal_conf(fractal_conf: FractalConf) -> Histogram {
     match fractal_conf {
@@ -52,50 +34,21 @@ fn get_histogram_from_fractal_conf(fractal_conf: FractalConf) -> Histogram {
     }
 }
 
-fn render_image(rendering_conf: RenderingConf, histogram: Histogram) -> Image {
-    match rendering_conf {
-        RenderingConf::MandelbrotRendering(conf) => conf.build().render_image(histogram),
-        RenderingConf::FlameRendering(conf) => conf.build().render_image(histogram),
-        RenderingConf::GaussianRendering(conf) => conf.build().render_image(histogram),
-        RenderingConf::GreyscaleRendering(conf) => conf.build().render_image(histogram),
-    }
-}
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> anyhow::Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default()).init();
 
     let args: Args = argh::from_env();
-    let json_config = fs::read_to_string(args.config_filename).expect("Could not read config file");
+    let fractal_config =
+        fs::read_to_string(args.config_filename).map(|x| serde_json::from_str(x.as_str()))??;
 
-    let app_config: AppConf =
-        serde_json::from_str(json_config.as_str()).expect("Error in the config file");
+    let histogram = get_histogram_from_fractal_conf(fractal_config);
 
-    let histogram = get_histogram_from_fractal_conf(app_config.fractal_conf);
-
-    if let Some(filename) = args.save_histogram {
-        let mut outfile = fs::File::create(filename).expect("Unable to open the histogram file");
-        outfile
-            .write_all(
-                &serde_json::to_vec_pretty(&histogram)
-                    .expect("Unable to convert the histogram in json file"),
-            )
-            .expect("Unable to write the histogram file");
-    }
-
-    if args.save_image.is_some() || !args.no_show {
-        let image = render_image(app_config.rendering_conf, histogram);
-
-        if let Some(image_path) = args.save_image {
-            png_save::save_image(&image, image_path)?;
-        }
-
-        if !args.no_show {
-            window::show_image(
-                PhysicalSize::new(image.width as f32, image.height as f32),
-                image,
-            )?
-        }
-    }
+    fs::File::create(args.output_histogram)?
+        .write_all(
+            &serde_json::to_vec_pretty(&histogram)
+                .expect("Unable to convert the histogram in json file"),
+        )
+        .expect("Unable to write the histogram file");
 
     Ok(())
 }
