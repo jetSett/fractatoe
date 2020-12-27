@@ -4,28 +4,6 @@ use serde_derive::{Deserialize, Serialize};
 use super::{Histogram, HistogramGeneration};
 
 #[derive(Serialize, Deserialize)]
-pub struct MandelbrotConf {
-    pub width: usize,
-    pub height: usize,
-    pub scaling: f64,
-    pub resolution: usize,
-    pub bound: f64,
-    pub iterations: usize,
-}
-
-impl MandelbrotConf {
-    pub fn build(self) -> Mandelbrot {
-        Mandelbrot {
-            width: self.width,
-            height: self.height,
-            scaling: self.scaling,
-            resolution: self.resolution,
-            bound: self.bound,
-            iterations: self.iterations,
-        }
-    }
-}
-
 pub struct Mandelbrot {
     width: usize,
     height: usize,

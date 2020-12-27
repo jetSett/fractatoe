@@ -7,13 +7,14 @@ use std::io::Write;
 
 use argh::FromArgs;
 use fractatoe::{
-    fractals::*,
+    fractals::HistogramGeneration,
     image::Image,
     rendering::{Histogram, HistogramRendering, RenderingConf},
 };
 use serde_derive::{Deserialize, Serialize};
 use winit::dpi::PhysicalSize;
 
+mod config;
 mod png_save;
 mod window;
 
@@ -30,6 +31,8 @@ struct Args {
     no_show: bool,
 }
 
+use config::FractalConf;
+
 #[derive(Serialize, Deserialize)]
 pub struct AppConf {
     fractal_conf: FractalConf,
@@ -38,7 +41,7 @@ pub struct AppConf {
 
 fn get_histogram_from_fractal_conf(fractal_conf: FractalConf) -> Histogram {
     match fractal_conf {
-        FractalConf::Mandelbrot(conf) => conf.build().build_histogram(),
+        FractalConf::Mandelbrot(generator) => generator.build_histogram(),
         FractalConf::Julia(conf) => conf.build().build_histogram(),
         FractalConf::Flame(conf) => conf.build().build_histogram(),
         FractalConf::RenderingOnly(histo_filename) => {
