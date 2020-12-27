@@ -9,7 +9,7 @@ pub fn save_image<P: AsRef<Path>>(
     path: P,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let file = File::create(path)?;
-    let ref mut w = BufWriter::new(file);
+    let w = BufWriter::new(file);
 
     let mut encoder = png::Encoder::new(w, image.width as u32, image.height as u32);
     encoder.set_color(png::ColorType::RGBA);

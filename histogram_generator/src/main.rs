@@ -72,7 +72,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Some(filename) = args.save_histogram {
         let mut outfile = fs::File::create(filename).expect("Unable to open the histogram file");
         outfile
-            .write(
+            .write_all(
                 &serde_json::to_vec_pretty(&histogram)
                     .expect("Unable to convert the histogram in json file"),
             )
