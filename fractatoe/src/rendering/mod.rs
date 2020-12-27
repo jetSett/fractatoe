@@ -83,7 +83,6 @@ impl Histogram {
                 pixel_cumul[index] = (freq_sum, color_sum);
             }
         }
-        println!("Max freq : {}", max_freq);
         // Aggregate the frequences
         for x in 0..(self.width) {
             for y in 0..(self.height) {
