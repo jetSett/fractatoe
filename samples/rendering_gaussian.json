@@ -1,0 +1,14 @@
+{
+    "GaussianRendering": {
+        "frequency_agreg_type": "Logarithmic",
+        "gaussian_colors": [{
+            "r": 50,
+            "g": 50,
+            "b": 245,
+            "mean": 0.7,
+            "std_deviation": 0.17,
+            "scaling_factor": 0.45
+        }],
+        "gamma": 2.2
+    }
+}

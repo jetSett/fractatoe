@@ -1,0 +1,10 @@
+{
+    "Mandelbrot": {
+        "width": 500,
+        "height": 500,
+        "scaling": 1,
+        "resolution": 3,
+        "bound": 20.0,
+        "iterations": 50
+    }
+}

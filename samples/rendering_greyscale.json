@@ -1,0 +1,6 @@
+{
+    "GreyscaleRendering": {
+        "frequency_agreg_type": "Logarithmic",
+        "gamma": 1
+    }
+}

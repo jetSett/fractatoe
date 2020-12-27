@@ -1,0 +1,11 @@
+{
+    "Julia": {
+        "width": 500,
+        "height": 500,
+        "c": [-0.8, 0.2],
+        "scaling": 0.645,
+        "resolution": 1,
+        "bound": 50.0,
+        "iterations": 200
+    }
+}
