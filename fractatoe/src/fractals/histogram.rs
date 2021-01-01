@@ -26,11 +26,11 @@ impl HistogramBuilder {
     }
 
     fn pixel_width_real(&self) -> f64 {
-        self.width_real / self.width_px as f64
+        self.width_real / (self.resolution_px * self.width_px) as f64
     }
 
     fn pixel_height_real(&self) -> f64 {
-        self.height_real / self.height_px as f64
+        self.height_real / (self.resolution_px * self.height_px) as f64
     }
 
     pub fn pixel_to_real(&self, i: usize, j: usize) -> Option<Point> {
