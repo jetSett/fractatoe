@@ -1,19 +1,26 @@
 {
-    "Flame": {
-        "width": 500,
-        "height": 500,
-        "variation_functions": ["Linear"],
-        "weight_variation": [1],
-        "flame_distribution": [1, 1, 1],
-        "coefs_inside": [
-            [0.5, 0, 0, 0, 0.5, 0.0],
-            [0.5, 0, 0.5, 0, 0.5, 0.0],
-            [0.5, 0, 0, 0, 0.5, 0.5]
-        ],
-        "resolution": 2,
-        "number_points": 2000,
-        "iteration_offset": 20,
-        "number_iterations": 1000,
-        "seed": "Sierpinsky"
+    "histogram_conf": {
+        "width_px": 600,
+        "height_px": 600,
+        "resolution_px": 3,
+        "center": [0.5, 0.5],
+        "width_real": 1,
+        "height_real": 1
+    },
+    "fractal_conf": {
+        "Flame": {
+            "variation_functions": ["Linear"],
+            "weight_variation": [1],
+            "flame_distribution": [1, 1, 1],
+            "coefs_inside": [
+                [0.5, 0, 0, 0, 0.5, 0.0],
+                [0.5, 0, 0.5, 0, 0.5, 0.0],
+                [0.5, 0, 0, 0, 0.5, 0.5]
+            ],
+            "number_points": 2000,
+            "iteration_offset": 20,
+            "number_iterations": 1000,
+            "seed": "Sierpinsky"
+        }
     }
 }

@@ -1,10 +1,16 @@
 {
-    "Mandelbrot": {
-        "width": 500,
-        "height": 500,
-        "scaling": 1,
-        "resolution": 3,
-        "bound": 20.0,
-        "iterations": 50
+    "histogram_conf": {
+        "width_px": 500,
+        "height_px": 500,
+        "resolution_px": 2,
+        "center": [0, 0],
+        "width_real": 3,
+        "height_real": 3
+    },
+    "fractal_conf": {
+        "Mandelbrot": {
+            "bound": 20.0,
+            "iterations": 50
+        }
     }
 }

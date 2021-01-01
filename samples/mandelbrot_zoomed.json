@@ -1,0 +1,17 @@
+{
+    "histogram_conf": {
+        "width_px": 600,
+        "height_px": 600,
+        "scaling": 1,
+        "resolution_px": 3,
+        "center": [0.2, 0.6],
+        "width_real": 0.3,
+        "height_real": 0.3
+    },
+    "fractal_conf": {
+        "Mandelbrot": {
+            "bound": 20.0,
+            "iterations": 50
+        }
+    }
+}

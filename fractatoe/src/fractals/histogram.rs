@@ -34,11 +34,28 @@ impl HistogramBuilder {
     }
 
     pub fn pixel_to_real(&self, i: usize, j: usize) -> Option<Point> {
-        if (0..self.width_px).contains(&i) && (0..self.height_px).contains(&j) {
+        if (0..self.width_px * self.resolution_px).contains(&i)
+            && (0..self.height_px * self.resolution_px).contains(&j)
+        {
             Some((
                 i as f64 * self.pixel_width_real(),
                 j as f64 * self.pixel_height_real(),
             ))
+        } else {
+            None
+        }
+    }
+
+    pub fn real_to_pixel(&self, mut x: f64, mut y: f64) -> Option<(usize, usize)> {
+        let (x0, y0) = self.point_top_left();
+        x -= x0;
+        y -= y0;
+        let (i, j) = (x / self.pixel_width_real(), y / self.pixel_height_real());
+        let (i, j) = (i as usize, j as usize);
+        if (0..self.width_px * self.resolution_px).contains(&i)
+            && (0..self.height_px * self.resolution_px).contains(&j)
+        {
+            Some((i, j))
         } else {
             None
         }

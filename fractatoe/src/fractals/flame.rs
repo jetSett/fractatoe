@@ -10,18 +10,6 @@ use crate::fractals::histogram::{F64Color, Histogram, HistogramBuilder};
 
 type FlameRng = rand::rngs::StdRng;
 
-fn float_point_to_int_point(
-    (x, y): (f64, f64),
-    width: usize,
-    height: usize,
-    resolution: usize,
-) -> (i32, i32) {
-    (
-        (x * (width * resolution) as f64) as i32 - 1,
-        (y * (height * resolution) as f64) as i32 - 1,
-    )
-}
-
 pub type FlameDistribution = WeightedIndex<u8>;
 // a_j, b_j, c_j, d_j, e_j, f_j j=1...n
 type CoefFlame = (f64, f64, f64, f64, f64, f64);
@@ -71,9 +59,7 @@ pub struct FlameConf {
     flame_distribution: Vec<u8>,
     weight_variation: Vec<f64>,
     coefs_inside: Vec<CoefFlame>,
-    width: usize,
-    height: usize,
-    resolution: usize,
+
     number_points: usize,
     iteration_offset: usize,
     number_iterations: usize,
@@ -105,9 +91,6 @@ impl FlameConf {
             flame_distribution,
             weight_variation: self.weight_variation,
             coefs_inside: self.coefs_inside,
-            width: self.width,
-            height: self.height,
-            resolution: self.resolution,
             number_points: self.number_points,
             number_iterations: self.number_iterations,
             iteration_offset: self.iteration_offset,
@@ -127,23 +110,34 @@ pub struct FlameAlgorithm {
     number_iterations: usize,
     iteration_offset: usize,
 
-    width: usize,
-    height: usize,
-    resolution: usize,
-
     rng: FlameRng,
 }
 
 impl HistogramGeneration for FlameAlgorithm {
-    fn build_histogram(mut self, _: HistogramBuilder) -> Histogram {
-        let mut histogram = Histogram::new(self.width, self.height, self.resolution);
+    fn build_histogram(mut self, builder: HistogramBuilder) -> Histogram {
+        let (x0, y0) = builder.point_top_left();
+        let uniform_distrib_x =
+            rand::distributions::uniform::Uniform::new(x0, x0 + builder.width_real);
+        let uniform_distrib_y =
+            rand::distributions::uniform::Uniform::new(y0, y0 + builder.height_real);
+        let mut histogram =
+            Histogram::new(builder.width_px, builder.height_px, builder.resolution_px);
         for _ in 0..self.number_points {
-            let mut point: FlamePoint = self.rng.gen();
+            // Sample a new point in the window
+            let mut point: FlamePoint = (
+                (
+                    self.rng.sample(uniform_distrib_x),
+                    self.rng.sample(uniform_distrib_y),
+                ),
+                self.rng.gen(),
+            );
+            // Make a few iteration to make an offset
             for _ in 0..self.iteration_offset {
                 point = self.one_round(point);
             }
+
             for _ in 0..self.number_iterations {
-                self.add_point_to_histogram(point, &mut histogram);
+                self.add_point_to_histogram(point, &mut histogram, &builder);
                 point = self.one_round(point);
             }
         }
@@ -177,18 +171,19 @@ impl FlameAlgorithm {
         ((x_current, y_current), color)
     }
 
-    fn add_point_to_histogram(&mut self, point: FlamePoint, histogram: &mut Histogram) {
-        let (x, y) = float_point_to_int_point(point.0, self.width, self.height, self.resolution);
-        if 0 <= x
-            && x < (self.width * self.resolution) as i32
-            && 0 <= y
-            && y < (self.height * self.resolution) as i32
-        {
+    fn add_point_to_histogram(
+        &mut self,
+        point: FlamePoint,
+        histogram: &mut Histogram,
+        builder: &HistogramBuilder,
+    ) {
+        let point_px = builder.real_to_pixel(point.0 .0, point.0 .1);
+        if let Some((x, y)) = point_px {
             let (mut freq, mut color) = histogram.get_cell(x as usize, y as usize);
             freq += 1.;
             color = (color + point.1) / 2.;
 
-            histogram.set_cell(x as usize, y as usize, (freq, color));
+            histogram.set_cell(x, y, (freq, color));
         }
     }
 }
