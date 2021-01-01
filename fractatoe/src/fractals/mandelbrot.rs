@@ -1,14 +1,11 @@
 use num::complex::Complex;
 use serde_derive::{Deserialize, Serialize};
 
-use super::{Histogram, HistogramGeneration};
+use super::histogram::{Histogram, HistogramBuilder};
+use super::HistogramGeneration;
 
 #[derive(Serialize, Deserialize)]
 pub struct Mandelbrot {
-    width: usize,
-    height: usize,
-    scaling: f64,
-    resolution: usize,
     bound: f64,
     iterations: usize,
 }
@@ -27,19 +24,15 @@ fn mandelbrot_divergence(x: f64, y: f64, bound: f64, iterations: usize) -> usize
     0
 }
 impl HistogramGeneration for Mandelbrot {
-    fn build_histogram(self) -> Histogram {
-        let mut histogram = Histogram::new(self.width, self.height, self.resolution);
+    fn build_histogram(self, builder: HistogramBuilder) -> Histogram {
+        let mut histogram =
+            Histogram::new(builder.width_px, builder.height_px, builder.resolution_px);
 
-        for i in 0..(self.width * self.resolution) {
-            for j in 0..(self.height * self.resolution) {
-                let x_float =
-                    (2. * (i as f64 / ((self.width * self.resolution) as f64)) - 1.) / self.scaling;
-                let y_float = (2. * (j as f64 / ((self.height * self.resolution) as f64)) - 1.)
-                    / self.scaling;
-                let div = mandelbrot_divergence(x_float, y_float, self.bound, self.iterations);
-                histogram.set_cell(i, j, (div as f64, 0.))
-            }
+        for ((i, j), (x_float, y_float)) in builder.iter_over_pixels() {
+            let div = mandelbrot_divergence(x_float, y_float, self.bound, self.iterations);
+            histogram.set_cell(i, j, (div as f64, 0.))
         }
+
         histogram
     }
 }

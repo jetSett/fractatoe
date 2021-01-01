@@ -6,7 +6,7 @@ use rand::distributions::weighted::WeightedIndex;
 use rand::Rng;
 
 use super::HistogramGeneration;
-use crate::rendering::{F64Color, Histogram};
+use crate::fractals::histogram::{F64Color, Histogram, HistogramBuilder};
 
 type FlameRng = rand::rngs::StdRng;
 
@@ -135,7 +135,7 @@ pub struct FlameAlgorithm {
 }
 
 impl HistogramGeneration for FlameAlgorithm {
-    fn build_histogram(mut self) -> Histogram {
+    fn build_histogram(mut self, _: HistogramBuilder) -> Histogram {
         let mut histogram = Histogram::new(self.width, self.height, self.resolution);
         for _ in 0..self.number_points {
             let mut point: FlamePoint = self.rng.gen();

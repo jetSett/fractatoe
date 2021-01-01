@@ -14,8 +14,9 @@ struct Args {
     no_show: bool,
 }
 
+use fractatoe::fractals::histogram::Histogram;
 use fractatoe::image::Image;
-use fractatoe::rendering::{Histogram, HistogramRendering};
+use fractatoe::rendering::HistogramRendering;
 
 use winit::dpi::PhysicalSize;
 

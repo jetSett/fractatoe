@@ -1,6 +1,7 @@
 use serde_derive::{Deserialize, Serialize};
 
-use super::{FrequencyAggregationType, Histogram, HistogramRendering};
+use super::HistogramRendering;
+use crate::fractals::histogram::{FrequencyAggregationType, Histogram};
 
 use crate::image::{Image, Pix};
 

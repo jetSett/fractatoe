@@ -6,7 +6,7 @@ use std::fs;
 use std::io::Write;
 
 use argh::FromArgs;
-use fractatoe::{fractals::HistogramGeneration, rendering::Histogram};
+use fractatoe::fractals::{histogram::Histogram, HistogramGeneration};
 
 mod config;
 
@@ -19,18 +19,14 @@ struct Args {
     output_histogram: String,
 }
 
-use config::FractalConf;
+use config::{FractalConf, GenerationConf};
 
-fn get_histogram_from_fractal_conf(fractal_conf: FractalConf) -> Histogram {
-    match fractal_conf {
-        FractalConf::Mandelbrot(generator) => generator.build_histogram(),
-        FractalConf::Julia(conf) => conf.build().build_histogram(),
-        FractalConf::Flame(conf) => conf.build().build_histogram(),
-        FractalConf::RenderingOnly(histo_filename) => {
-            let histo_data =
-                fs::read_to_string(histo_filename).expect("Could not read histogram file");
-            serde_json::from_str(histo_data.as_str()).expect("Error in the histogram data")
-        }
+fn get_histogram_from_gen_conf(gen_conf: GenerationConf) -> Histogram {
+    let histogram_conf = gen_conf.histogram_conf;
+    match gen_conf.fractal_conf {
+        FractalConf::Mandelbrot(generator) => generator.build_histogram(histogram_conf),
+        FractalConf::Julia(generator) => generator.build_histogram(histogram_conf),
+        FractalConf::Flame(generator) => generator.build().build_histogram(histogram_conf),
     }
 }
 
@@ -38,10 +34,10 @@ fn main() -> anyhow::Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default()).init();
 
     let args: Args = argh::from_env();
-    let fractal_config =
+    let gen_conf: GenerationConf =
         fs::read_to_string(args.config_filename).map(|x| serde_json::from_str(x.as_str()))??;
 
-    let histogram = get_histogram_from_fractal_conf(fractal_config);
+    let histogram = get_histogram_from_gen_conf(gen_conf);
 
     fs::File::create(args.output_histogram)?
         .write_all(
