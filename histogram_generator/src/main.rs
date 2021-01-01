@@ -9,6 +9,8 @@ use argh::FromArgs;
 use fractatoe::fractals::{histogram::Histogram, HistogramGeneration};
 
 mod config;
+#[cfg(test)]
+mod test;
 
 #[derive(FromArgs)]
 /// Arguments
@@ -30,12 +32,15 @@ fn get_histogram_from_gen_conf(gen_conf: GenerationConf) -> Histogram {
     }
 }
 
+fn read_config_file(filename: &str) -> anyhow::Result<GenerationConf> {
+    Ok(fs::read_to_string(filename).map(|x| serde_json::from_str(x.as_str()))??)
+}
+
 fn main() -> anyhow::Result<()> {
     env_logger::Builder::from_env(env_logger::Env::default()).init();
 
     let args: Args = argh::from_env();
-    let gen_conf: GenerationConf =
-        fs::read_to_string(args.config_filename).map(|x| serde_json::from_str(x.as_str()))??;
+    let gen_conf = read_config_file(&args.config_filename)?;
 
     let histogram = get_histogram_from_gen_conf(gen_conf);
 
